@@ -10,6 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import json
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -154,7 +155,7 @@ class PrintManager(object):
             status["state"] = job.state
         # release queue lock
         self.queuelock.release()
-        return status
+        return json.dumps(status)
 
     def getPrinterStatus(self):
         status = {}
@@ -174,7 +175,8 @@ class PrintManager(object):
         status["failed"] = len(job)
         job = session.query(PrintJob).filter(PrintJob.state==3).all()
         status["complete"] = len(job)
-        return status
+        self.queuelock.release() 
+        return json.dumps(status)
  
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -184,7 +186,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 length = int(self.headers.getheader('content-length'))
                 data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
 
-                data = PrintManager.Instance().QueuePrintJob(data)
+                data = PrintManager.Instance().queuePrintJob(data)
                 #PrintJobs.records[recordID] = data
                 #print "record %s is added successfully" % recordID
             else:
@@ -201,7 +203,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         if None != re.search('/api/v1/zebrabadgeprinter/[0-9]+/$', self.path):
             jobID = self.path.split('/')[-2]
-            PrintManager.Instance().DeletePrintJob(jobId)
+            PrintManager.Instance().deletePrintJob(jobId)
             # delete job
             self.send_response(200)
             self.end_headers()
@@ -215,7 +217,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if None != re.search('/api/v1/zebrabadgeprinter/[0-9]+/$', self.path):
             # get data about a specific print job
             jobID = self.path.split('/')[-2]
-            data = PrintManager.Instance.GetJobStatus(jobID)
+            data = PrintManager.Instance().getJobStatus(jobID)
             if data:
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -226,7 +228,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
         elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
-            data = PrintManager.Instance.GetPrinterStatus()
+            data = PrintManager.Instance().getPrinterStatus()
             if data:
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')

@@ -75,6 +75,7 @@ class PrintManager(object):
         self.queuelock = threading.Lock()
         self.engine = create_engine('sqlite:////tmp/foo.db', echo=True)
         Base.metadata.create_all(self.engine)
+        self.enabled = 0 # 1=true, 0=false
 
     def worker(self, path, jobid):
         """thread worker function"""
@@ -109,6 +110,12 @@ class PrintManager(object):
                 
             # mark job as active and re-write database
             self.queuelock.release()
+
+    def enablePrinter(self):
+        self.enabled = 1
+
+    def disablePrinter(self):
+        self.enabled = 0
     
     def queuePrintJob(self, data):
         # obtain queue lock
@@ -140,6 +147,21 @@ class PrintManager(object):
         self.queuelock.release()
         return True
 
+    def deleteAll(self):
+        # obtain queue lock
+        self.queuelock.acquire() 
+        # find and delete job in database
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+        job = session.query(PrintJob).filter(PrintJob.id == jobid).all()
+        for x in job:
+            session.delete(x)
+        # release queue lock
+        if len(job):
+            session.commit()
+        self.queuelock.release()
+        return True
+
     def getJobStatus(self, jobid):
         status = None 
         # obtain queue lock
@@ -164,7 +186,7 @@ class PrintManager(object):
         # find job in database and get status
         Session = sessionmaker(bind=self.engine)
         session = Session()
-        status["status"] = "up"
+        status["enabled"] = self.enabled
         job = session.query(PrintJob).filter().all()
         status["jobs"] = len(job)
         job = session.query(PrintJob).filter(PrintJob.state==0).all()
@@ -179,6 +201,21 @@ class PrintManager(object):
         return json.dumps(status)
  
 class HTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_PUT(self):
+        if None != re.search('/api/v1/zebrabadgeprinter/enable/$', self.path):
+            PrintManager.Instance().enablePrinter()
+            self.send_response(200)
+            self.end_headers()
+        elif None != re.search('/api/v1/zebrabadgeprinter/disable/$', self.path):
+            PrintManager.Instance().disablePrinter()
+            self.send_response(200)
+            self.end_headers()
+        else:
+            self.send_response(400, 'Bad Request')
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+        return
+
     def do_POST(self):
         if None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
@@ -207,6 +244,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             # delete job
             self.send_response(200)
             self.end_headers()
+        elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
+            PrintManager.Instance().deleteAll()
         else:
             self.send_response(400, 'Bad Request: print job does not exist')
             self.send_header('Content-Type', 'application/json')

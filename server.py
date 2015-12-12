@@ -11,6 +11,9 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# see
+# http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
+
 class Singleton:
     """
     A non-thread-safe helper class to ease implementing singletons.
@@ -74,7 +77,7 @@ class PrintManager(object):
 
     def worker(self, path, jobid):
         """thread worker function"""
-        # for now, simulate successful print
+        # for now, simulate a successful print
         print 'Worker: %s' % (path)
         self.queuelock.acquire() 
         Session = sessionmaker(bind=self.engine)
@@ -152,6 +155,26 @@ class PrintManager(object):
         # release queue lock
         self.queuelock.release()
         return status
+
+    def getPrinterStatus(self):
+        status = {}
+        # for now, simulate printer is up, report number of jobs
+        self.queuelock.acquire() 
+        # find job in database and get status
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+        status["status"] = "up"
+        job = session.query(PrintJob).filter().all()
+        status["jobs"] = len(job)
+        job = session.query(PrintJob).filter(PrintJob.state==0).all()
+        status["queued"] = len(job)
+        job = session.query(PrintJob).filter(PrintJob.state==1).all()
+        status["printing"] = len(job)
+        job = session.query(PrintJob).filter(PrintJob.state==2).all()
+        status["failed"] = len(job)
+        job = session.query(PrintJob).filter(PrintJob.state==3).all()
+        status["complete"] = len(job)
+        return status
  
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -203,8 +226,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
         elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
-            # get status about the printer (state, number of jobs)
-            pass
+            data = PrintManager.Instance.GetPrinterStatus()
+            if data:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                self.send_response(500, "Internal: can't get printer status")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
         else:
             self.send_response(400, 'Bad Request: print job does not exist')
             self.send_header('Content-Type', 'application/json')

@@ -11,6 +11,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import json
+from time import sleep
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -75,27 +76,49 @@ class PrintManager(object):
         self.queuelock = threading.Lock()
         self.engine = create_engine('sqlite:////tmp/zequs.db', echo=True)
         Base.metadata.create_all(self.engine)
-        self.enabled = 0 # 1=true, 0=false
+        self.enabled = 1 # 1=true, 0=false
+        self.testMode = True
+        self.thread = threading.Thread(target=self.iterate)
+        self.thread.start()
 
     def worker(self, path, jobid):
-        """thread worker function"""
-        # for now, simulate a successful print
-        print 'Worker: %s' % (path)
-        self.queuelock.acquire() 
+        print "top of worker, have a job to print"
+        # print
+        self.printerlock.acquire()
         Session = sessionmaker(bind=self.engine)
         session = Session()
+        self.queuelock.acquire() 
         job = session.query(PrintJob).filter(PrintJob.id == jobid).all()
         if len(job):
             job = job[0]
-            job.state = 3
+            job.state = 1
             session.commit()
-        self.queuelock.release() 
-        self.printerlock.release()
+            self.queuelock.release() 
+            if self.testMode:
+                print "simulating a successful print"
+                sleep(10)   # simulate the print
+            else:
+                pass # actually print
+            self.printerlock.release()  # done with the printer
+            self.queuelock.acquire()    # update the state of the job
+            if self.testMode:
+                job.state = 3   # success
+            else:
+                pass            # set to actual state
+            session.commit()
+            self.queuelock.release() 
+        else:
+            self.queuelock.release() 
+            self.printerlock.release()
         return
 
     def iterate(self): 
-        self.printerlock.acquire()
-        if True:
+        while True:
+            print "top of iterate"
+            if not self.enabled: 
+                print "printer not enabled"    
+                sleep(5)
+                continue 
             self.queuelock.acquire()
             # get next job in database
             Session = sessionmaker(bind=self.engine)
@@ -103,19 +126,23 @@ class PrintManager(object):
             job = session.query(PrintJob).filter(PrintJob.state == 0).all()
             if len(job):
                 job = job[0]
-                t = threading.Thread(target=worker, args=(job.path,job.id,))
-                t.start()
-                job.state = 1
                 session.commit()
-                
-            # mark job as active and re-write database
-            self.queuelock.release()
+                # kick of thread to do actual printing
+                t = threading.Thread(target=self.worker, args=(job.path,job.id,))
+                t.start()
+                self.queuelock.release()
+            else: 
+                self.queuelock.release()
+                sleep(5)   # nothing to do, sleep a bit
 
     def enablePrinter(self):
         self.enabled = 1
 
     def disablePrinter(self):
         self.enabled = 0
+
+    def setTestMode(self, val):
+        self.testMode = val
     
     def queuePrintJob(self, data):
         ret = {}
@@ -206,6 +233,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         if None != re.search('/api/v1/zebrabadgeprinter/enable/$', self.path):
             PrintManager.Instance().enablePrinter()
+            self.send_response(200)
+            self.end_headers()
+        elif None != re.search('/api/v1/zebrabadgeprinter/testmode/enable/$', self.path):
+            PrintManager.Instance().setTestMode(True)
+            self.send_response(200)
+            self.end_headers()
+        elif None != re.search('/api/v1/zebrabadgeprinter/testmode/disable/$', self.path):
+            PrintManager.Instance().setTestMode(False)
             self.send_response(200)
             self.end_headers()
         elif None != re.search('/api/v1/zebrabadgeprinter/disable/$', self.path):

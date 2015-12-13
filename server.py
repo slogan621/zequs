@@ -73,7 +73,7 @@ class PrintManager(object):
     def __init__(self):
         self.printerlock = threading.Lock()     
         self.queuelock = threading.Lock()
-        self.engine = create_engine('sqlite:////tmp/foo.db', echo=True)
+        self.engine = create_engine('sqlite:////tmp/zequs.db', echo=True)
         Base.metadata.create_all(self.engine)
         self.enabled = 0 # 1=true, 0=false
 
@@ -118,6 +118,7 @@ class PrintManager(object):
         self.enabled = 0
     
     def queuePrintJob(self, data):
+        ret = {}
         # obtain queue lock
         self.queuelock.acquire() 
         # add to database, mark as pending get job ID
@@ -131,7 +132,8 @@ class PrintManager(object):
         # release queue lock
         self.queuelock.release()
         # return job ID
-        return job.id
+        ret["id"] = job.id
+        return json.dumps(ret) 
 
     def deletePrintJob(self, jobid):
         # obtain queue lock
@@ -153,7 +155,7 @@ class PrintManager(object):
         # find and delete job in database
         Session = sessionmaker(bind=self.engine)
         session = Session()
-        job = session.query(PrintJob).filter(PrintJob.id == jobid).all()
+        job = session.query(PrintJob).filter().all()
         for x in job:
             session.delete(x)
         # release queue lock
@@ -227,13 +229,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 #PrintJobs.records[recordID] = data
                 #print "record %s is added successfully" % recordID
             else:
-                data = {}
+                data = json.dumps({})
  
             self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
             self.end_headers()
+            self.wfile.write(data)
         else:
             self.send_response(403)
-            self.send_header('Content-Type', 'application/json')
             self.end_headers()
         return
  
@@ -246,9 +249,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
         elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
             PrintManager.Instance().deleteAll()
+            self.send_response(200)
+            self.end_headers()
         else:
             self.send_response(400, 'Bad Request: print job does not exist')
-            self.send_header('Content-Type', 'application/json')
             self.end_headers()
         return
  

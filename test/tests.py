@@ -95,6 +95,7 @@ class TestZequsAPI(unittest.TestCase):
 
     def test_queryprinter(self):
         disablePrinter()
+        deleteAllJobs()
         url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
@@ -106,6 +107,39 @@ class TestZequsAPI(unittest.TestCase):
         self.assertTrue("printing" in x)
         self.assertTrue("failed" in x)
         self.assertTrue("complete" in x)
+
+        # create a job and see if queued is set to 1 for the printer
+
+        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        data = encodeImageAsJSON("badge.png")
+        headers = {'content-type': 'application/json'}
+        r = requests.post(url, headers=headers, data=data)
+        self.assertTrue(r.status_code == 200)
+        x = r.json()
+        job = x["id"]
+
+        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        r = requests.get(url)
+        self.assertTrue(r.status_code == 200)
+        x = r.json()
+        self.assertTrue("queued" in x)
+        self.assertTrue(x["queued"] == 1)
+        self.assertTrue("jobs" in x)
+        self.assertTrue(x["jobs"] == 1)
+
+        # now query the job
+
+        url = "http://%s:%d/api/v1/zebrabadgeprinter/%d/" % (host, port, job)
+        r = requests.get(url)
+        self.assertTrue(r.status_code == 200)
+        x = r.json()
+        self.assertTrue("state" in x)
+        self.assertTrue(x["state"] == 0) # queued
+        self.assertTrue("id" in x)
+
+        self.assertTrue(int(x["id"]) == job)
+
+        deleteAllJobs()
         enablePrinter()
 
     def test_add(self):

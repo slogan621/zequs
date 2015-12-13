@@ -10,7 +10,8 @@ What is Zequs?
 Zequs is the web-service component of software that would run on a Linux
 server to which a Zebra ZXP printer is connected. It manages print jobs
 and, via a command line interface that is implemented by a separate 
-project (zequs-java-cli) can control a Zebra ZXP printer.
+project (zequs-java-cli) that interfaces with a Java library provided by
+Zebra that can control a Zebra ZXP printer.
 
 Badge images are sent across the API as PNG files, a job is created and
 stored in a sqlite3 database, and a thread drains the database printing

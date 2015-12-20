@@ -10,7 +10,7 @@ name: my-printer
 Note that the file must implement a class named PrinterPlugin that inherits
 ZequsPluginBase. The rest is up to you, and depends on how your plugin 
 intefaces with the printer (via a driver, commandline app, network connection,
-or whatever.
+or whatever).
 '''
 
 from zequspluginbase import ZequsPluginBase
@@ -52,12 +52,12 @@ class PrinterPlugin(ZequsPluginBase):
     # return driver version
 
     def getVersion(self):
-        return "beta-1.0.2220"
+        raise NotImplementedError 
 
     # return driver name
 
     def getName(self):
-        raise "zsdk_card_api"
+        raise NotImplementedError 
 
     # apply settings to the printer/driver
 

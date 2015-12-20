@@ -1,4 +1,3 @@
-
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from SocketServer import ThreadingMixIn
 import threading
@@ -12,6 +11,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import json
 from time import sleep
+import ConfigParser
+import imp
+import os
+import sys
+from importlib import import_module
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -72,6 +76,9 @@ class PrintJob(Base):
 @Singleton
 class PrintManager(object):
     def __init__(self):
+        self._pluginObj = None
+        self.readConfig()
+        self.loadPlugin()
         self.printerlock = threading.Lock()     
         self.queuelock = threading.Lock()
         self.engine = create_engine('sqlite:////tmp/zequs.db', echo=True)
@@ -80,6 +87,25 @@ class PrintManager(object):
         self.testMode = True
         self.thread = threading.Thread(target=self.iterate)
         self.thread.start()
+
+    def readConfig(self):
+        try:
+            cfg = ConfigParser.ConfigParser()
+            cfg.read("/etc/zequs.conf")
+            self.plugin_name = cfg.get("plugin", "name")
+        except:
+            print "Unable to open or read /etc/zequs.conf"
+            exit()
+
+    def loadPlugin(self):
+        try:
+            mod = import_module("plugins." + self.plugin_name)
+            classattr = getattr(mod, "PrinterPlugin")
+            self._pluginObj = classattr()
+        except:
+            e = sys.exc_info()[0]
+            print "Unable to load plugin %s: %s" % (self.plugin_name, e)
+            exit()
 
     def worker(self, path, jobid):
         print "top of worker, have a job to print"
@@ -340,9 +366,6 @@ class SimpleHttpServer():
  
     def waitForThread(self):
         self.server_thread.join()
- 
-    def addRecord(self, recordID, jsonEncodedRecord):
-        PrintJobs.records[recordID] = jsonEncodedRecord
  
     def stop(self):
         self.server.shutdown()

@@ -12,7 +12,7 @@ is false.
 Also, tests do not assume that there is a printer attached.
 '''
 
-host = "127.0.0.1"
+host = "192.168.0.120"
 port = 8081
 
 def encodeImageAsJSON(path):

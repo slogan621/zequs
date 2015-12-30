@@ -19,35 +19,15 @@ class PrinterPlugin(ZequsPluginBase):
     def __init__(self):
         super(PrinterPlugin, self).__init__()
 
-    # return a dictionary of printer ID, description pairs
-
-    def discover(self):
-        raise NotImplementedError
-
-    # open the specified printer
-
-    def open(self, printerID):
-        raise NotImplementedError
-
     # print image to specified printer
 
-    def printCard(self, printerID, img):
+    def printCard(self, path):
         raise NotImplementedError
 
     # return printer status
 
-    def getStatus(self, printerID):
+    def getStatus(self):
         raise NotImplementedError
-
-    # close printer
-
-    def close(self, printerID):
-        raise NotImplementedError
-
-    # reset printer
-
-    def reset(self, printerID):
-        raise NotImplementedError 
 
     # return driver version
 
@@ -61,10 +41,10 @@ class PrinterPlugin(ZequsPluginBase):
 
     # apply settings to the printer/driver
 
-    def settings(self, printerID, settings):
+    def settings(self, settings):
         raise NotImplementedError
 
     # get settings for specified printer
 
-    def getSettings(self, printerID):
+    def getSettings(self):
         raise NotImplementedError

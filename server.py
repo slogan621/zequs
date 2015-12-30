@@ -102,12 +102,13 @@ class PrintManager(object):
             mod = import_module("plugins." + self.plugin_name)
             classattr = getattr(mod, "PrinterPlugin")
             self._pluginObj = classattr()
+            
         except:
             e = sys.exc_info()[0]
             print "Unable to load plugin %s: %s" % (self.plugin_name, e)
             exit()
 
-    def worker(self, path, jobid):
+    def worker(self, jobid):
         print "top of worker, have a job to print"
         # print
         self.printerlock.acquire()
@@ -154,7 +155,7 @@ class PrintManager(object):
                 job = job[0]
                 session.commit()
                 # kick of thread to do actual printing
-                t = threading.Thread(target=self.worker, args=(job.path,job.id,))
+                t = threading.Thread(target=self.worker, args=(job.id,))
                 t.start()
                 self.queuelock.release()
             else: 
@@ -282,12 +283,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(data)
         elif None != re.search('/api/v1/zebrabadgeprinter/testmode/enable/$', self.path):
-            data = PrintManager.Instance().enablePrinter()
+            data = PrintManager.Instance().setTestMode(True)
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)
         elif None != re.search('/api/v1/zebrabadgeprinter/testmode/disable/$', self.path):
-            data = PrintManager.Instance().disablePrinter()
+            data = PrintManager.Instance().setTestMode(False)
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)

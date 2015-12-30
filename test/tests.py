@@ -5,11 +5,11 @@ import json
 from time import sleep
 
 '''
-The following assumes zequs service is running on localhost and listening on 
-port 8081. Change host and port variables as needed below if this assumption 
-is false.
+Change host and port variables as needed below to identify location of
+the print server. 
 
-Also, tests do not assume that there is a printer attached.
+Tests do not assume that there is a printer attached, and do not test 
+plugins.
 '''
 
 host = "192.168.0.120"

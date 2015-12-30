@@ -14,7 +14,7 @@ class ZequsPluginBase(object):
 
     # print image to specified printer
 
-    def printCard(self, printerID, img):
+    def printCard(self, printerID, path):
         raise NotImplementedError
 
     # return printer status

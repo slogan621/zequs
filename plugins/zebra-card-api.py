@@ -1,13 +1,26 @@
 from zequspluginbase import ZequsPluginBase
+import subprocess
+import tempfile
+import os
 
 class PrinterPlugin(ZequsPluginBase):
     def __init__(self):
         super(PrinterPlugin, self).__init__()
+        self._jarfile = "zsdk_card_api-beta-1.0.2220.jar"
+        self._command = "java -jar %s" % (self._jarfile)
+
+    def _execute(self, args):
+        cmd = cmd + self._command + " " + ' '.join(x for x in args)
+        stdout=subprocess.check_output(cmd)
+        return stdout
 
     # return a dictionary of printer ID, description pairs
 
     def discover(self):
-        raise NotImplementedError
+        ret = {}
+        args = ["discover", "--usb", "--json"]
+        stdout = self._execute(args)
+        return ret
 
     # open the specified printer
 
@@ -16,8 +29,25 @@ class PrinterPlugin(ZequsPluginBase):
 
     # print image to specified printer
 
-    def printCard(self, printerID, img):
-        raise NotImplementedError
+    def printCard(self, path):
+        ret = 3
+        '''
+        fp = tempfile.NamedTemporaryFile()
+        sv = "--save %s" % (fp.name)
+        args = ["graphic", path, "--format color", sv]
+        stdout = self._execute(args)
+        # check result of conversion
+        validConversion = True
+        # print
+        if validConversion:
+            ipath = "--image %s" % (fp.name) 
+            args = ["print", printerID, ipath, "--usb"]
+            stdout = self._execute(args)
+            # check result of printing
+        else:
+        '''
+            
+        return ret
 
     # return printer status
 
@@ -32,7 +62,10 @@ class PrinterPlugin(ZequsPluginBase):
     # reset printer
 
     def reset(self, printerID):
-        raise NotImplementedError 
+        res = {}
+        args = ["reset", printerID, "--usb"]
+        stdout = self._execute(args)
+        return res
 
     # return driver version
 

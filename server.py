@@ -93,6 +93,14 @@ class PrintManager(object):
             cfg = ConfigParser.ConfigParser()
             cfg.read("/etc/zequs.conf")
             self.plugin_name = cfg.get("plugin", "name")
+            try:
+                self.spoolonly = cfg.getboolean("printer", "spoolonly")
+            except:
+                self.spoolonly = False
+            try:
+                self.spooldir = cfg.get("printer", "spooldir")
+            except:
+                self.spooldir = None
         except:
             print "Unable to open or read /etc/zequs.conf"
             exit()
@@ -124,14 +132,16 @@ class PrintManager(object):
             if self.testMode:
                 print "simulating a successful print"
                 sleep(10)   # simulate the print
-            else:
+            elif self.spoolonly == False:
                 ret = self._pluginObj.printCard(PrintJob.path)
             self.printerlock.release()  # done with the printer
             self.queuelock.acquire()    # update the state of the job
             if self.testMode:
                 job.state = 3   # success
-            else:
+            elif self.spoolonly == False:
                 job.state = ret
+            else:
+                job.state = 3   # spooled file, claim success
             session.commit()
             self.queuelock.release() 
         else:
@@ -183,7 +193,7 @@ class PrintManager(object):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
-        fd, temp_path = mkstemp()
+        fd, temp_path = mkstemp(dir=self.spooldir)
         f = open(temp_path, "w+")        
         f.write(data)
         f.close()
@@ -206,10 +216,11 @@ class PrintManager(object):
         session = Session()
         job = session.query(PrintJob).filter(PrintJob.id == jobid).all()
         if len(job):
-            try:
-                os.remove(job[0].path)
-            except:
-                pass
+            if self.spoolonly == False:
+                try:
+                    os.remove(job[0].path)
+                except:
+                    pass
             session.delete(job[0])
             session.commit()
         # release queue lock
@@ -227,10 +238,11 @@ class PrintManager(object):
         session = Session()
         job = session.query(PrintJob).filter().all()
         for x in job:
-            try:
-                os.remove(job[0].path)
-            except:
-                pass
+            if self.spoolonly == False:
+                try:
+                    os.remove(job[0].path)
+                except:
+                    pass
             session.delete(x)
         # release queue lock
         if len(job):

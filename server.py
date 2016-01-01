@@ -16,6 +16,7 @@ import os
 import sys
 from importlib import import_module
 from tempfile import mkstemp
+import base64
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -193,7 +194,8 @@ class PrintManager(object):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
-        fd, temp_path = mkstemp(dir=self.spooldir)
+        data = base64.decodestring(data)
+        fd, temp_path = mkstemp(dir=self.spooldir, suffix=".png")
         f = open(temp_path, "w+")        
         f.write(data)
         f.close()

@@ -17,6 +17,7 @@ import sys
 from importlib import import_module
 from tempfile import mkstemp
 import base64
+from PIL import Image
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -102,6 +103,10 @@ class PrintManager(object):
                 self.spooldir = cfg.get("printer", "spooldir")
             except:
                 self.spooldir = None
+            try:
+                self.rotate = cfg.getint("printer", "rotate")
+            except:
+                self.rotate = 0
         except:
             print "Unable to open or read /etc/zequs.conf"
             exit()
@@ -194,12 +199,23 @@ class PrintManager(object):
         Session = sessionmaker(bind=self.engine)
         session = Session()
 
-        data = base64.decodestring(data)
+        img = base64.decodestring(data)
+
         fd, temp_path = mkstemp(dir=self.spooldir, suffix=".png")
         f = open(temp_path, "w+")        
-        f.write(data)
+        f.write(img)
         f.close()
         os.close(fd)
+
+        # this is lazy and a bit inefficient, but it allows the
+        # work to be done without knowing much about the image
+        # and can't be any simpler.
+
+        if self.rotate != 0:
+            img = Image.open(temp_path)
+            img2 = img.rotate(self.rotate)
+            img2.save(temp_path)
+
         job = PrintJob(path=temp_path, state=0)
         session.add(job)
         session.commit()

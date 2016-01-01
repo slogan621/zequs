@@ -31,10 +31,11 @@ See the wiki located here on github (TBD)
 Why the name Zequs?
 -------------------
 
-It's a play on the genus of Zebras, Equus. I added 'Z' to the front, taken
-from the first letter of "Zebra", removed a "u" from equus, and noticed
+It's a play on the genus of Zebras, Equus. I started this project with the
+intent of supporting Zebra ZXP printers. I added a 'Z' to the front, taken
+from the first letter of "Zebra", I removed a "u" from equus, and noticed
 that it read like "Zebra queues", which works because the service is in
-effect managing a queue of print jobs for a Zebra.
+effect managing a queue of print jobs (originally) for a Zebra printer. 
 
 Zequs is pronounced something like "Zeck us".
 

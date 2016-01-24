@@ -17,7 +17,13 @@ import sys
 from importlib import import_module
 from tempfile import mkstemp
 import base64
-from PIL import Image
+
+# so far, haven't had luck installing Pillow on Windows 7. 
+
+try:
+    from PIL import Image
+except:
+    pass
 
 # see
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
@@ -212,9 +218,12 @@ class PrintManager(object):
         # and can't be any simpler.
 
         if self.rotate != 0:
-            img = Image.open(temp_path)
-            img2 = img.rotate(self.rotate)
-            img2.save(temp_path)
+            if Image:
+                img = Image.open(temp_path)
+                img2 = img.rotate(self.rotate)
+                img2.save(temp_path)
+            else:
+                print "Unable to rotate images (Image package missing)"
 
         job = PrintJob(path=temp_path, state=0)
         session.add(job)

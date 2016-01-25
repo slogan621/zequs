@@ -15,6 +15,14 @@ on later Windows versions (8, 10, etc.).
 This document assumes you have installed cygwin and pulled Zequs from our
 git repository. 
 
+Video Example
+-------------
+
+For a quick video showing the spooler configuration described in this 
+document in action, please click below:
+
+https://www.youtube.com/watch?v=v1gq-1RFBds
+
 Configuring Zequs as a Print Spooler
 ------------------------------------
 

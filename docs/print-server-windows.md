@@ -21,11 +21,15 @@ Configuring Zequs as a Print Spooler
 From the cygwin prompt, cd to the location of the configuration file that is
 supplied with zequs: 
 
+```
 $ cd zequs/misc
+```
 
 Copy zequs.conf to /etc:
 
+```
 $ cp zequs.conf /etc
+```
 
 Using vim (or other editor, feel free to use an editor from Windows Desktop,
 but make sure it is configured to use Unix line endings) modify
@@ -43,6 +47,7 @@ In the [plugin] section, set the name to "template".
 The following is a correctly configured /etc/zequs.conf that spools ID cards
 to /tmp/idcards:
 
+```
 # /etc/zequs.conf example
 
 [printer]
@@ -73,6 +78,7 @@ spooldir: /tmp
 # name of the plugin
 
 name: template
+```
 
 Starting Zequs
 --------------

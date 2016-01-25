@@ -33,26 +33,35 @@ cygwin. This will launch a terminal window that accepts Unix-like commands.
 
 To test if Python was installed, from the terminal prompt, type:
 
+```
 $ python --version
+```
 
 Python should display something like:
 
+```
 Python 2.7.6
+```
 
 Next, verify git was installed:
 
+```
 $ git --version
 git version 1.9.1
+```
 
 Downloading and Installing Zequs
 --------------------------------
 
 Launch the cygwin terminal from your desktop. Then type:
 
+```
 $ git clone git@github.com:slogan621/zequs.git
+```
 
 You should see something like this:
 
+```
 Cloning into 'zequs'...
 remote: Counting objects: 117, done.
 remote: Total 117 (delta 0), reused 0 (delta 0), pack-reused 117
@@ -60,6 +69,7 @@ Receiving objects: 100% (117/117), 47.07 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (64/64), done.
 Checking connectivity... done.
 $
+```
 
 Configuring Zequs
 -----------------
@@ -81,28 +91,38 @@ The following steps should be used to start Zequs:
 * Launch a cygwin terminal
 * Determine your IP address:
 
+```
 $ ipconfig
+```
 
 (we'll assume the IP address of the laptop is 192.168.1.100)
 
 * cd in the zequs directory:
 
+```
 $ cd zequs
+```
 
 * start zequs
 
+```
 $ python server.py 8081 192.168.1.100
+```
 
 Stopping Zequs
 --------------
 
 In a separate cygwin terminal:
 
+```
 $ ps | grep python
+```
 
 The first number reported on the output line is the PID. Using this PID
 
+```
 $ kill -9 PID
+```
 
 For more information
 --------------------

@@ -56,7 +56,7 @@ Downloading and Installing Zequs
 Launch the cygwin terminal from your desktop. Then type:
 
 ```
-$ git clone git@github.com:slogan621/zequs.git
+$ git clone https://github.com/slogan621/zequs.git
 ```
 
 You should see something like this:

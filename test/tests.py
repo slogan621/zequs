@@ -12,7 +12,7 @@ Tests do not assume that there is a printer attached, and do not test
 plugins.
 '''
 
-host = "192.168.0.120"
+host = "192.168.0.125"
 port = 8081
 
 def encodeImageAsJSON(path):

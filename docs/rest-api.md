@@ -96,7 +96,7 @@ None.
 ```
 GET /api/v1/zequs/ HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -156,7 +156,7 @@ None.
 ```
 DELETE /api/v1/zequs/18/ HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -190,7 +190,7 @@ None.
 ```
 DELETE /api/v1/zequs/ HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -251,7 +251,7 @@ Enables printing (default state is "enabled")
 ### PUT /api/v1/zequs/enable/
 
 #### Headers
-* content-type - application/json
+* Accept (string) - application/json
 
 #### Path Parameters
 None.
@@ -266,7 +266,7 @@ None
 ```
 PUT /api/v1/zequs/enable HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -286,7 +286,7 @@ Disables printing (default state is "enabled")
 ### PUT /api/v1/zequs/disable/
 
 #### Headers
-* content-type - application/json
+* Accept (string) - application/json
 
 #### Path Parameters
 None.
@@ -301,7 +301,7 @@ None
 ```
 PUT /api/v1/zequs/disable HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -319,7 +319,7 @@ Disables printing (default state is "enabled")
 ### PUT /api/v1/zequs/disable/
 
 #### Headers
-* content-type - application/json
+* Accept (string) - application/json
 
 #### Path Parameters
 None.
@@ -334,7 +334,7 @@ None
 ```
 PUT /api/v1/zequs/disable HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -354,7 +354,7 @@ Enables testmode (used by unit tests)
 ### PUT /api/v1/zequs/testmode/enable/
 
 #### Headers
-* content-type - application/json
+* Accept (string) - application/json
 
 #### Path Parameters
 None.
@@ -369,7 +369,7 @@ None
 ```
 PUT /api/v1/zequs/testmode/enable HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 
@@ -389,7 +389,7 @@ Disables testmode (used by unit tests)
 ### PUT /api/v1/zequs/testmode/disable/
 
 #### Headers
-* content-type - application/json
+* Accept (string) - application/json
 
 #### Path Parameters
 None.
@@ -404,7 +404,7 @@ None
 ```
 PUT /api/v1/zequs/testmode/disable HTTP/1.1
 Host: 192.168.10.4:8080
-Content-Type: application/json
+Accept: application/json
 Cache-Control: no-cache
 ```
 

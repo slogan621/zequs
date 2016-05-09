@@ -319,22 +319,22 @@ class PrintManager(object):
  
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
-        if None != re.search('/api/v1/zebrabadgeprinter/enable/$', self.path):
+        if None != re.search('/api/v1/zequs/enable/$', self.path):
             data = PrintManager.Instance().enablePrinter()
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)
-        elif None != re.search('/api/v1/zebrabadgeprinter/testmode/enable/$', self.path):
+        elif None != re.search('/api/v1/zequs/testmode/enable/$', self.path):
             data = PrintManager.Instance().setTestMode(True)
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)
-        elif None != re.search('/api/v1/zebrabadgeprinter/testmode/disable/$', self.path):
+        elif None != re.search('/api/v1/zequs/testmode/disable/$', self.path):
             data = PrintManager.Instance().setTestMode(False)
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)
-        elif None != re.search('/api/v1/zebrabadgeprinter/disable/$', self.path):
+        elif None != re.search('/api/v1/zequs/disable/$', self.path):
             data = PrintManager.Instance().disablePrinter()
             self.send_response(200)
             self.end_headers()
@@ -348,7 +348,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
-        if None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
+        if None != re.search('/api/v1/zequs/$', self.path):
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
             if ctype == 'application/json':
                 length = int(self.headers.getheader('content-length'))
@@ -371,14 +371,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         return
  
     def do_DELETE(self):
-        if None != re.search('/api/v1/zebrabadgeprinter/[0-9]+/$', self.path):
+        if None != re.search('/api/v1/zequs/[0-9]+/$', self.path):
             jobID = self.path.split('/')[-2]
             data = PrintManager.Instance().deletePrintJob(jobID)
             # delete job
             self.send_response(200)
             self.end_headers()
             self.wfile.write(data)
-        elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
+        elif None != re.search('/api/v1/zequs/$', self.path):
             data = PrintManager.Instance().deleteAll()
             self.send_response(200)
             self.end_headers()
@@ -391,7 +391,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         return
  
     def do_GET(self):
-        if None != re.search('/api/v1/zebrabadgeprinter/[0-9]+/$', self.path):
+        if None != re.search('/api/v1/zequs/[0-9]+/$', self.path):
             # get data about a specific print job
             jobID = self.path.split('/')[-2]
             data = PrintManager.Instance().getJobStatus(jobID)
@@ -406,7 +406,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(data)
-        elif None != re.search('/api/v1/zebrabadgeprinter/$', self.path):
+        elif None != re.search('/api/v1/zequs/$', self.path):
             data = PrintManager.Instance().getPrinterStatus()
             if data:
                 self.send_response(200)

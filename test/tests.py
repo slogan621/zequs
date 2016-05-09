@@ -28,23 +28,23 @@ def encodeImageAsJSON(path):
     return ret
 
 def enableTestMode():
-    url = "http://%s:%d/api/v1/zebrabadgeprinter/testmode/enable/" % (host, port)
+    url = "http://%s:%d/api/v1/zequs/testmode/enable/" % (host, port)
     r = requests.put(url)
 
 def disableTestMode():
-    url = "http://%s:%d/api/v1/zebrabadgeprinter/testmode/disable/" % (host, port)
+    url = "http://%s:%d/api/v1/zequs/testmode/disable/" % (host, port)
     r = requests.put(url)
 
 def enablePrinter():
-    url = "http://%s:%d/api/v1/zebrabadgeprinter/enable/" % (host, port)
+    url = "http://%s:%d/api/v1/zequs/enable/" % (host, port)
     r = requests.put(url)
 
 def disablePrinter():
-    url = "http://%s:%d/api/v1/zebrabadgeprinter/disable/" % (host, port)
+    url = "http://%s:%d/api/v1/zequs/disable/" % (host, port)
     r = requests.put(url)
 
 def deleteAllJobs():
-    url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+    url = "http://%s:%d/api/v1/zequs/" % (host, port)
     r = requests.delete(url)
 
 class TestZequsAPI(unittest.TestCase):
@@ -53,25 +53,25 @@ class TestZequsAPI(unittest.TestCase):
         disablePrinter()
         enableTestMode()
         deleteAllJobs()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
         self.assertTrue(x["jobs"] == 0)
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         data = encodeImageAsJSON("badge.png")
         headers = {'content-type': 'application/json'}
         r = requests.post(url, headers=headers, data=data)
         self.assertTrue(r.status_code == 200)
         x = r.json()
         self.assertTrue("id" in x)
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
         self.assertTrue(x["jobs"] == 1)
         deleteAllJobs()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -80,7 +80,7 @@ class TestZequsAPI(unittest.TestCase):
     def test_enable(self):
         enablePrinter()
         enableTestMode()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -91,14 +91,14 @@ class TestZequsAPI(unittest.TestCase):
     def test_disable_enable(self):
         disablePrinter()
         enableTestMode()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
         self.assertTrue("enabled" in x)
         self.assertTrue(x["enabled"] == 0)
         enablePrinter()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -109,7 +109,7 @@ class TestZequsAPI(unittest.TestCase):
         disablePrinter()
         enableTestMode()
         deleteAllJobs()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -123,7 +123,7 @@ class TestZequsAPI(unittest.TestCase):
 
         # create a job and see if queued is set to 1 for the printer
 
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         data = encodeImageAsJSON("badge.png")
         headers = {'content-type': 'application/json'}
         r = requests.post(url, headers=headers, data=data)
@@ -131,7 +131,7 @@ class TestZequsAPI(unittest.TestCase):
         x = r.json()
         job = x["id"]
 
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -142,7 +142,7 @@ class TestZequsAPI(unittest.TestCase):
 
         # now query the job
 
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/%d/" % (host, port, job)
+        url = "http://%s:%d/api/v1/zequs/%d/" % (host, port, job)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()
@@ -158,7 +158,7 @@ class TestZequsAPI(unittest.TestCase):
         disablePrinter()
         enableTestMode()
         deleteAllJobs()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         data = encodeImageAsJSON("badge.png")
         headers = {'content-type': 'application/json'}
         r = requests.post(url, headers=headers, data=data)
@@ -172,7 +172,7 @@ class TestZequsAPI(unittest.TestCase):
         deleteAllJobs()
         enableTestMode()
         enablePrinter()
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/" % (host, port)
+        url = "http://%s:%d/api/v1/zequs/" % (host, port)
         data = encodeImageAsJSON("badge.png")
         headers = {'content-type': 'application/json'}
         r = requests.post(url, headers=headers, data=data)
@@ -187,7 +187,7 @@ class TestZequsAPI(unittest.TestCase):
 
         # verify the simulated print was successful
 
-        url = "http://%s:%d/api/v1/zebrabadgeprinter/%d/" % (host, port, job)
+        url = "http://%s:%d/api/v1/zequs/%d/" % (host, port, job)
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
         x = r.json()

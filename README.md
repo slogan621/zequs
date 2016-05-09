@@ -1,7 +1,7 @@
 Zequs
 =====
 
-A python 2.x based web service for printing badges to  a card printer such
+A python 2.x based web service for printing badges to a card printer such
 as the Zebra ZXP series 1 and series 3 printers.
 
 What is Zequs?
@@ -12,10 +12,14 @@ server to which an ID card  printer is connected.
 
 Badge images are sent across the API as PNG files, a job is created and
 stored in a sqlite3 database, and a thread drains the database printing
-each badge image in order.'
+each badge image in order.
 
 The web service requires a plugin that interfaces with the printer to do
 the actual printing, and obtain job and printer status. 
+
+A print spooler mode was added once it was determined that Zebra was unable
+to provide a usable API to their ZXP series one printers that would allow
+Zequs to send it print images. 
 
 
 What is the status of Zequs?
@@ -26,7 +30,7 @@ Zequs is currently in development.
 API Documentation
 -----------------
 
-See the wiki located here on github (TBD)
+See rest-api.md in the docs directory for a description of the API.
 
 Why the name Zequs?
 -------------------

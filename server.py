@@ -289,9 +289,12 @@ class PrintManager(object):
             job = job[0]
             status["id"] = jobid
             status["state"] = job.state
+            status = json.dumps(status)
+        else:
+            status = None
         # release queue lock
         self.queuelock.release()
-        return json.dumps(status)
+        return status
 
     def getPrinterStatus(self):
         status = {}
@@ -362,7 +365,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(data)
         else:
             data = json.dumps({})
-            self.send_response(403)
+            self.send_response(400, 'Bad request')
             self.end_headers()
             self.wfile.write(data)
         return
@@ -382,7 +385,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(data)
         else:
             data = json.dumps({})
-            self.send_response(400, 'Bad Request: print job does not exist')
+            self.send_response(404, 'Bad Request: print job does not exist')
             self.end_headers()
             self.wfile.write(data)
         return
@@ -399,7 +402,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(data)
             else:
                 data = json.dumps({})
-                self.send_response(400, 'Bad Request: record does not exist')
+                self.send_response(404, 'job ID does not exist')
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(data)
@@ -418,7 +421,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(data)
         else:
             data = json.dumps({})
-            self.send_response(400, 'Bad Request: print job does not exist')
+            self.send_response(404, 'Bad Request: print job does not exist')
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(data)

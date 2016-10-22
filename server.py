@@ -212,7 +212,7 @@ class PrintManager(object):
     def setTestMode(self, val):
         self.testMode = val
     
-    def queuePrintJob(self, data):
+    def queuePrintJob(self, prefix, data):
         ret = {}
         # obtain queue lock
         self.queuelock.acquire() 
@@ -222,7 +222,7 @@ class PrintManager(object):
 
         img = base64.decodestring(data)
 
-        fd, temp_path = mkstemp(dir=self.spooldir, suffix=".png")
+        fd, temp_path = mkstemp(dir=self.spooldir, prefix=prefix, suffix=".png")
         f = open(temp_path, "w+")        
         f.write(img)
         f.close()
@@ -368,7 +368,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if ctype == 'application/json':
                 length = int(self.headers.getheader('content-length'))
                 data = json.loads(self.rfile.read(length))
-                data = PrintManager.Instance().queuePrintJob(data["data"])
+                try:
+                    prefix  = data["filename_prefix"]
+                except:
+                    print "exception missing prefix. Defaulting to none"
+                    prefix = ""
+                data = PrintManager.Instance().queuePrintJob(prefix, data["data"])
                 #PrintJobs.records[recordID] = data
                 #print "record %s is added successfully" % recordID
             else:

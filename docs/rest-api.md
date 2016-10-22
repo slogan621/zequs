@@ -1,8 +1,8 @@
 # Zequs API
 
-Date: June 8, 2016
+Date: October 21, 2016
 
-Document Version: v1.1
+Document Version: v1.2
 
 # Overview
 This document describes the Zequs API v1.0, which supports queuing of images
